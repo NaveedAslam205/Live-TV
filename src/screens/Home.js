@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useRef} from "react";
+import { React, useState, useEffect, useRef } from "react";
 
 import {
   StyleSheet,
@@ -11,45 +11,27 @@ import {
 } from "react-native";
 import { Video, ResizeMode } from "expo-av";
 import YoutubePlayer from "react-native-youtube-iframe";
+import { getChannels } from "../Firebase/Firestore";
 // import { BannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 // import "expo-dev-client";
-
-
-import app from "../src/FireStore";
-import {
-  collection,
-  getFirestore,
-  getDocs,
-  doc,
-  query,
-} from "firebase/firestore";
-import { getAuth } from "firebase/auth";
 
 export default function Home(props) {
   const video = useRef(null);
   const [status, setStatus] = useState({});
   const [chanels, setChanels] = useState([]);
   const [currentChanel, setCurrentChanel] = useState([]);
-
   const [chanelType, setChanelType] = useState(`News`);
-  const [pressed, setPressed]=useState('News');
-
+  const [pressed, setPressed] = useState('News');
   const [loading, setLoading] = useState(false);
-  
 
-  const db = getFirestore(app);
 
-  const auth = getAuth();
 
   const loadData = async () => {
-    const q = query(collection(db, "Channels"));
-    let chanels = [];
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-      chanels.push(doc.data());
-      
-    });
-    setChanels(chanels);
+    let res = await getChannels()
+    if (res.success)
+      setChanels(res.data);
+      else
+      alert('Could not load channels, please try again!')
   };
 
   useEffect(() => {
@@ -66,47 +48,47 @@ export default function Home(props) {
 
   return (
     <View style={styles.container}>
-      {currentChanel.streamingUrl ? 
-      (
-        <View style={styles.vid}>
-          {currentChanel.streamingUrl.includes("youtu") ? 
-          (
-          <YoutubePlayer
-          height={300}
-          play={true}
-          forceAndroidAutoplay={true}
-          videoId={currentChanel.id}
-          />
-          ):
-          <Video
-          ref={video}
-          style={styles.vid}
-          source={{
-            uri: currentChanel.streamingUrl,
-          }}
-          useNativeControls
-          resizeMode={ResizeMode.CONTAIN}
-          isLooping
-          onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-        />}
-        </View>
-      ) : <Image source={require('../assets/placed.png')} style={styles.vid}></Image>}
-      
-        <View style={styles.baseLine}>
-        
+      {currentChanel.streamingUrl ?
+        (
+          <View style={styles.vid}>
+            {currentChanel.streamingUrl.includes("youtu") ?
+              (
+                <YoutubePlayer
+                  height={300}
+                  play={true}
+                  forceAndroidAutoplay={true}
+                  videoId={currentChanel.id}
+                />
+              ) :
+              <Video
+                ref={video}
+                style={styles.vid}
+                source={{
+                  uri: currentChanel.streamingUrl,
+                }}
+                useNativeControls
+                resizeMode={ResizeMode.CONTAIN}
+                isLooping
+                onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+              />}
+          </View>
+        ) : <Image source={require('../../assets/placed.png')} style={styles.vid}></Image>}
+
+      <View style={styles.baseLine}>
+
         <Image
           style={styles.logo}
           resizeMode={"contain"}
           source={{ uri: currentChanel.img }}
         />
-        {currentChanel.streamingUrl ?(
-        <Text style={styles.baseLineText}>
-          {`${currentChanel.name}`} Live Streaming.
-        </Text>
-        ):
-        <Text style={styles.baseLineText}>
-          Select a Channel from below list.
-        </Text>}
+        {currentChanel.streamingUrl ? (
+          <Text style={styles.baseLineText}>
+            {`${currentChanel.name}`} Live Streaming.
+          </Text>
+        ) :
+          <Text style={styles.baseLineText}>
+            Select a Channel from below list.
+          </Text>}
       </View>
 
       {/* <BannerAd
@@ -117,46 +99,46 @@ export default function Home(props) {
       }}
     /> */}
 
-    <View style={styles.menu }>
+      <View style={styles.menu}>
         <TouchableOpacity
-          onPress={() => {setChanelType('News'),setPressed('News')}}
-          style={pressed=='News' ? styles.touched : styles.touchabble}
+          onPress={() => { setChanelType('News'), setPressed('News') }}
+          style={pressed == 'News' ? styles.touched : styles.touchabble}
         >
           <Image
-            source={require("../assets/news.png")}
+            source={require("../../assets/news.png")}
             style={styles.menuImages}
           ></Image>
           <Text style={styles.menuText}>News</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => {setChanelType('Sports'),setPressed('Sports')}}
-          style={pressed=='Sports' ? styles.touched : styles.touchabble}
+          onPress={() => { setChanelType('Sports'), setPressed('Sports') }}
+          style={pressed == 'Sports' ? styles.touched : styles.touchabble}
         >
           <Image
-            source={require("../assets/sports.png")}
+            source={require("../../assets/sports.png")}
             style={styles.menuImages}
           ></Image>
           <Text style={styles.menuText}>Sports</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => {setChanelType('Entertainment'),setPressed('Entertainment')}}
-          style={pressed== 'Entertainment' ? styles.touched : styles.touchabble}
+          onPress={() => { setChanelType('Entertainment'), setPressed('Entertainment') }}
+          style={pressed == 'Entertainment' ? styles.touched : styles.touchabble}
         >
           <Image
-            source={require("../assets/entertainment.png")}
+            source={require("../../assets/entertainment.png")}
             style={styles.menuImages}
           ></Image>
           <Text style={styles.menuText}>Entertainment</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => {setChanelType('Geography'),setPressed('Geography')}}
-          style={pressed== 'Geography' ? styles.touched : styles.touchabble}
+          onPress={() => { setChanelType('Geography'), setPressed('Geography') }}
+          style={pressed == 'Geography' ? styles.touched : styles.touchabble}
         >
           <Image
-            source={require("../assets/geo.png")}
+            source={require("../../assets/geo.png")}
             style={styles.menuImages}
           ></Image>
           <Text style={styles.menuText}>Geography</Text>
@@ -171,18 +153,18 @@ export default function Home(props) {
           renderItem={({ item }) => {
 
             return (
-              chanelType==item.type ?
-             <TouchableOpacity
-                onPress={() => {
-                  setCurrentChanel(item);
-                }}
-                style={styles.card}
-              >
-                <Image source={{ uri: item.img }} style={styles.image}></Image>
-                <Text style={styles.txt}>Live</Text>
-              </TouchableOpacity> :null
+              chanelType == item.type ?
+                <TouchableOpacity
+                  onPress={() => {
+                    setCurrentChanel(item);
+                  }}
+                  style={styles.card}
+                >
+                  <Image source={{ uri: item.img }} style={styles.image}></Image>
+                  <Text style={styles.txt}>Live</Text>
+                </TouchableOpacity> : null
             );
-            
+
           }}
         />
       </View>
@@ -218,7 +200,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    alignSelf:'center',
+    alignSelf: 'center',
   },
 
   baseLineText: {
@@ -264,18 +246,18 @@ const styles = StyleSheet.create({
   },
   menu: {
     height: 50,
-    width:350,
+    width: 350,
     flexDirection: "row",
     backgroundColor: "#0000000",
-    margin:10,
-    marginLeft:10,
-    marginRight:10,
-    borderRadius:10,
-    paddingLeft:10,
-    paddingRight:10,
-    justifyContent:'center',
-    alignSelf:'center',
-    backgroundColor:'#264653',
+    margin: 10,
+    marginLeft: 10,
+    marginRight: 10,
+    borderRadius: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#264653',
   },
 
   menuImages: {
@@ -298,10 +280,10 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     marginLeft: 15,
     marginRight: 15,
-    marginBottom:8,
+    marginBottom: 8,
     marginTop: 8,
-    borderWidth:0.5,
-    borderRadius:3,
-    borderColor:'white'
+    borderWidth: 0.5,
+    borderRadius: 3,
+    borderColor: 'white'
   },
 });
